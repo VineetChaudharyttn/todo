@@ -15,7 +15,10 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
+import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 
+import javax.sql.DataSource;
 import java.util.Base64;
 
 @EnableWebSecurity
@@ -25,6 +28,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     CustomDetailsService customDetailsService;
+
+    @Autowired
+    DataSource dataSource;
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -66,11 +72,21 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.csrf().disable();
         http.authorizeRequests().expressionHandler(webExpressionHandler())
                 .antMatchers("**/home").authenticated()
-                .anyRequest().authenticated()
+                .anyRequest().permitAll()
                 .and()
-                .formLogin().loginPage("/login").permitAll()
+                .rememberMe()
+                .tokenRepository(persistentTokenRepository())
+                .and()
+                .formLogin().loginPage("/").permitAll()
                 .defaultSuccessUrl("/home")
                 .and()
-                .logout().logoutSuccessUrl("/login");
+                .logout().logoutSuccessUrl("/");
+    }
+
+    @Bean
+    public PersistentTokenRepository persistentTokenRepository(){
+        JdbcTokenRepositoryImpl jdbcTokenRepository = new JdbcTokenRepositoryImpl();
+        jdbcTokenRepository.setDataSource(dataSource);
+        return jdbcTokenRepository;
     }
 }

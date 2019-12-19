@@ -1,9 +1,16 @@
 <!DOCTYPE HTML>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script type="text/javascript" th:src="@{js/jquery-3.4.1.min.js}"></script>
+    <script type="text/javascript" th:src="@{js/confirmPass.js}"></script>
+    <script type="text/javascript" th:src="@{js/notify.js}"></script>
+    <!--<script type="text/javascript" th:src="@{js/notification.js}"></script>-->
     <style>
-        body {font-family: Arial, Helvetica, sans-serif;}
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            width: auto;
+            height: auto
+        }
 
         /* Full-width input fields */
         input[type=text], input[type=password] {
@@ -23,39 +30,10 @@
             margin: 8px 0;
             border: none;
             cursor: pointer;
-            width: 100%;
         }
 
         button:hover {
             opacity: 0.8;
-        }
-
-        /* Extra styles for the cancel button */
-        .cancelbtn {
-            width: auto;
-            padding: 10px 18px;
-            background-color: #f44336;
-        }
-
-        /* Center the image and position the close button */
-        .imgcontainer {
-            text-align: center;
-            margin: 24px 0 12px 0;
-            position: relative;
-        }
-
-        img.avatar {
-            width: 40%;
-            border-radius: 50%;
-        }
-
-        .container {
-            padding: 16px;
-        }
-
-        span.psw {
-            float: right;
-            padding-top: 16px;
         }
 
         /* The Modal (background) */
@@ -68,17 +46,13 @@
             width: 100%; /* Full width */
             height: 100%; /* Full height */
             overflow: auto; /* Enable scroll if needed */
-            background-color: rgb(0,0,0); /* Fallback color */
-            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+            background-color: rgb(0, 0, 0); /* Fallback color */
+            background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
             padding-top: 60px;
         }
 
-        /* Modal Content/Box */
-        .modal-content {
-            background-color: #fefefe;
-            margin: 5% auto 15% auto; /* 5% from the top, 15% from the bottom and centered */
-            border: 1px solid #888;
-            width: 80%; /* Could be more or less, depending on screen size */
+        .col-8 {
+            padding: 0px;
         }
 
         /* The Close Button (x) */
@@ -104,13 +78,21 @@
         }
 
         @-webkit-keyframes animatezoom {
-            from {-webkit-transform: scale(0)}
-            to {-webkit-transform: scale(1)}
+            from {
+                -webkit-transform: scale(0)
+            }
+            to {
+                -webkit-transform: scale(1)
+            }
         }
 
         @keyframes animatezoom {
-            from {transform: scale(0)}
-            to {transform: scale(1)}
+            from {
+                transform: scale(0)
+            }
+            to {
+                transform: scale(1)
+            }
         }
 
         /* Change styles for span and cancel button on extra small screens */
@@ -119,91 +101,190 @@
                 display: block;
                 float: none;
             }
+
             .cancelbtn {
                 width: 100%;
             }
         }
     </style>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 </head>
 <body>
 <div th:replace="fragments :: header"></div>
-<span th:text="${attr}"></span>
-<div th:if="${user.username}">
-    <span th:text="${user.name}"></span><br/>
-    <span th:text="${user.username}"></span><br/>
-    <span th:text="${user.role}"></span>
+<div sec:authorize="isAnonymous()">
+    <img th:src="@{'/images/todo.png'}"
+         style="left: 57%;top: 50%;position: absolute;transform: translate(-50%,-50%);width: 85%">
 </div>
-<div id="id01" class="modal" th:if="${isLoggedIn} == false">
 
-    <form class="modal-content animate" th:action="@{'/login'}"  enctype="multipart/form-data" method="post" th:Object="${user}">
-        <div class="imgcontainer">
-            <span onclick="document.getElementById('id01').style.display='none'" class="close" title="Close Modal">&times;</span>
-        </div>
+<div sec:authorize="isAuthenticated()" th:replace="fragments :: tasks"></div>
+<div id="login" class="modal row" sec:authorize="isAnonymous()" style="padding-top: 10%;">
 
-        <div class="container">
-            <label><b>Username</b></label>
-            <input type="text" placeholder="Enter Username"  th:field="*{username}" required>
+    <form class="animate" th:action="@{'/'}" enctype="multipart/form-data" method="post" th:Object="${user}">
+        <div class="card col-8" style="margin: auto;">
+            <div class="card-header">
+                Login
+                <span onclick="document.getElementById('login').style.display='none'" class="close mt-2"
+                      title="Close Modal">&times;</span>
+            </div>
 
-            <label><b>Password</b></label>
-            <input type="password" placeholder="Enter Password" th:field="*{password}" required>
+            <div class="card-body">
+                <label><b>Username</b></label>
+                <input type="text" placeholder="Enter Username" th:field="*{username}" required>
 
-            <button type="submit">Login</button>
-            <label>
-                <input type="checkbox" checked="checked" name="remember"> Remember me
-            </label>
-        </div>
+                <label><b>Password</b></label>
+                <input type="password" placeholder="Enter Password" th:field="*{password}" required>
+                <tr>
+                    <td>Remember Me</td>
+                    <td><input type="checkbox" name="remember-me"/></td>
+                </tr>
+            </div>
 
-        <div class="container" style="background-color:#f1f1f1">
-            <button type="button" onclick="document.getElementById('id01').style.display='none'" class="cancelbtn">Cancel</button>
-            <span class="psw">Forgot <a href="#">password?</a></span>
+            <div class="card-footer" style="background-color:#f1f1f1">
+                <button type="submit">Login</button>
+                <span class="psw">Forgot <a href="#">password?</a></span>
+            </div>
         </div>
     </form>
 </div>
-<div id="id02" class="modal" th:if="${isLoggedIn} == false">
+<div id="register" class="modal row" sec:authorize="isAnonymous()" style="padding-top: 10%;">
 
-    <form class="modal-content animate" th:action="@{'/register'}"  enctype="multipart/form-data" method="post" th:Object="${user}">
-        <div class="imgcontainer">
-            <span onclick="document.getElementById('id02').style.display='none'" class="close" title="Close Modal">&times;</span>
-        </div>
+    <form class="animate" th:action="@{'/register'}" enctype="multipart/form-data" method="post" th:Object="${user}">
+        <div class="card col-8" style="margin: auto;">
+            <div class="card-header">
+                Add Task
+                <span onclick="document.getElementById('register').style.display='none'" class="close mt-2"
+                      title="Close Modal">&times;</span>
+            </div>
 
-        <div class="container">
-            <label><b>Name</b></label>
-            <input type="text" placeholder="Enter Username"  th:field="*{name}" required>
+            <div class="card-body">
+                <label><b>Name</b></label>
+                <input type="text" placeholder="Enter Username" th:field="*{name}" required>
 
-            <label><b>Username</b></label>
-            <input type="text" placeholder="Enter Username"  th:field="*{username}" required>
+                <label><b>Username</b></label>
+                <input type="text" placeholder="Enter Username" th:field="*{username}" required>
 
-            <label><b>Password</b></label>
-            <input type="password" placeholder="Enter Password" id="pass"required>
+                <label><b>Password</b></label>
+                <input type="password" id="inputPassword" placeholder="Enter Password" required>
 
-            <label><b>Confirm Password</b></label>
-            <input type="password" placeholder="Enter Password" id="confPass" th:field="*{password}" required>
+                <label><b>Confirm Password</b></label>
+                <input type="password" id="confirmpassword" placeholder="Enter Password" th:field="*{password}"
+                       required>
+                <span id="err" class="badge badge-danger"></span>
+            </div>
 
-            <button type="submit">Login</button>
-            <label>
-                <input type="checkbox" checked="checked" name="remember"> Remember me
-            </label>
-        </div>
-
-        <div class="container" style="background-color:#f1f1f1">
-            <button type="button" onclick="document.getElementById('id01').style.display='none'" class="cancelbtn">Cancel</button>
-            <span class="psw">Forgot <a href="#">password?</a></span>
+            <div class="cord-footer" style="background-color:#f1f1f1">
+                <button type="submit">Register</button>
+                <span class="psw">Forgot <a href="#">password?</a></span>
+            </div>
         </div>
     </form>
 </div>
+<div class="container">
+    <div id="addTask" class="modal row" sec:authorize="isAuthenticated()" style="padding-top: 10%;">
 
+        <!--<form class="animate"  enctype="multipart/form-data" method="post" th:Object="${task}" style="margin-left: 15%;margin-right: 15%;">-->
+        <div class="card animate col-8" style="margin: auto;">
+            <div class="card-header">
+                Add Task
+                <span onclick="document.getElementById('addTask').style.display='none'" class="close mt-2"
+                      title="Close Modal">&times;</span>
+            </div>
+
+            <div class="card-body">
+                <table style="margin: auto;">
+                    <tr>
+                        <td>Title</td>
+                        <td><input type="text" placeholder="Enter Title" id="title" name="title" required></td>
+                    </tr>
+                    <tr>
+                        <td>Description</td>
+                        <td><textarea rows="5" cols="80" placeholder="Enter Description" id="description"
+                                      name="description" required></textarea></td>
+                    </tr>
+                    <tr>
+                        <td>Date</td>
+                        <td><input type="date" id="date" placeholder="Enter Date" name="date" th:min=" ${#dates.format(execInfo.now.time, 'yyyy-MM-dd')}" required></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="card-footer">
+                <button onclick="addTask()" class="btn btn-outline-success my-2 my-sm-0">Add</button>
+            </div>
+        </div>
+        <!--</form>-->
+    </div>
+</div>
 <div th:replace="fragments :: footer"></div>
 
 <script>
-    // Get the modal
-    var modal = document.getElementById('id01');
 
-    // When the user clicks anywhere outside of the modal, close it
-    window.onclick = function(event) {
-        if (event.target == modal) {
-            modal.style.display = "none";
-        }
+    // var number = [[${number}]];
+    var message = "[[${msg}]]";
+    if (message) {
+        $.notify(message, "success");
+    }
+    var addTask = function () {
+        var task = {};
+        task.title = $('#title').val();
+        task.description = $('#description').val();
+        task.date = $('#date').val();
+        $.ajax({
+            url: '/addTask',
+            data: task,
+            method: 'POST',
+            success: function (responce) {
+                console.log(responce);
+                if (responce) {
+                    var tr = document.getElementById("tasksTable").insertRow(-1);
+                        tr.id = responce.id;
+                        tr.innerHTML = '<td><input type="checkbox" id="' + responce.id + '" value="' + responce.id + '" onclick="updateTask(' + responce.id + ')"></td>\n' +
+                        '<td>' + responce.date + '</td>' +
+                        '<td>' + responce.title + '</td>' +
+                        '<td>' + responce.description + '</td>'+
+                        '<td><button class="btn btn-danger my-2 my-sm-0"'+
+                    'onclick="deleteTask('+responce.id+');" style="width:auto;">Delete'+
+                        '</button></td>';
+                    $.notify("Task added successfully.", "success");
+                    $('#title').val("");
+                    $('#description').val("");
+                    $('#date').val("");
+                }
+                document.getElementById('addTask').style.display = 'none';
+            }
+        })
+    };
+    var updateTask = function (id) {
+        var selector = "input[value=" + id + "]";
+        var status = $(selector).is(":checked");
+        $.ajax({
+            url: "/updateStatus",
+            method: "GET",
+            data: {taskId: id, status: status},
+            success: function (responce) {
+                var status = responce.status ? "complete successfully" : "panding successfully";
+                var msg = "Task status changed to "+status;
+                $.notify(msg,"success");
+            },
+            error: function () {
+                console.log("There is some error occured");
+            }
+        })
+    };
+    var deleteTask = function(id) {
+
+        $.ajax({
+            url: "/deleteTask",
+            method: "GET",
+            data: {taskId: id},
+            success: function () {
+                $('#'+id).remove();
+                $.notify("Task deleted successfully","success");
+            },
+            error: function () {
+                $.notify("There is an error for deleting this task","error");
+            }
+        })
     }
 </script>
 </body>

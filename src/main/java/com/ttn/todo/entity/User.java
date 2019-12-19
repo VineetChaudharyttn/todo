@@ -23,6 +23,9 @@ public class User {
     @JsonIgnore
     private List<Role> role = new ArrayList<Role>();
 
+    @OneToMany(mappedBy = "user")
+    private List<Task> tasks= new ArrayList<>();
+
 
 
     public User(String name, String username, String password, List<Role> role) {
@@ -80,6 +83,14 @@ public class User {
 
     public void setRole(List<Role> role) {
         this.role = role;
+    }
+
+    public List<Task> getTasks() {
+        return tasks;
+    }
+
+    public void setTasks(List<Task> tasks) {
+        this.tasks = tasks;
     }
 
     @Override

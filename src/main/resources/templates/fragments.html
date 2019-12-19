@@ -1,47 +1,76 @@
-<div xmlns:th="http://www.w3.org/1999/xhtml">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+
+<body>
+<div>
     <div th:fragment="header">
         <nav class="navbar navbar-expand-lg navbar-light bg-light" style="padding-left: 5%;padding-right: 5%">
             <a class="navbar-brand" href="/"><h1>TODO</h1></a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+                    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav mr-auto">
                     <!--<li class="nav-item active">
-                        <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+                        <a class="nav-link" sec:authorize="hasRole('USER')" href="#">Home <span class="sr-only">(current)</span></a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Link</a>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Dropdown
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" href="#">Action</a>
-                            <a class="dropdown-item" href="#">Another action</a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="#">Something else here</a>
-                        </div>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link disabled" href="#">Disabled</a>
+                        <a class="nav-link" sec:authorize="hasRole('ADMIN')" href="#">Admin</a>
                     </li>-->
                 </ul>
-                <div class="form-inline my-2 my-lg-0" th:if="${isLoggedIn} == false">
-                    <button class="btn btn-outline-success my-2 my-sm-0" onclick="document.getElementById('id01').style.display='block'" style="width:auto;">Login</button>
-                    <button class="btn btn-outline-success my-2 my-sm-0" onclick="document.getElementById('id02').style.display='block'" style="width:auto;">SignUp</button>
+                <div class="form-inline my-2 my-lg-0" sec:authorize="isAnonymous()">
+                    <button class="btn btn-outline-success my-2 my-sm-0"
+                            onclick="document.getElementById('login').style.display='block'" style="width:auto;">Login
+                    </button>
+                    <button class="btn btn-outline-success my-2 my-sm-0"
+                            onclick="document.getElementById('register').style.display='block'" style="width:auto;">
+                        SignUp
+                    </button>
                 </div>
-                <div class="form-inline my-2 my-lg-0" th:unless="${isLoggedIn} == false">
+                <div sec:authorize="isAuthenticated()" class="form-inline my-2 my-lg-0">
+                    <button class="btn btn-outline-success my-2 my-sm-0"
+                            onclick="document.getElementById('addTask').style.display='block'" style="width:auto;">Add Task
+                    </button>
                     <a class="btn btn-outline-success my-2 my-sm-0" th:href="@{logout}">Logout</a>
                 </div>
             </div>
         </nav>
     </div>
-    <div th:fragment="footer" class="card-footer text-center bottom" style="position: absolute; bottom: 0px; width: 100%">
-        <footer>
+        <footer th:fragment="footer" class="container-fluid text-center" style="background-color: black; padding: 1%;color: white;position: fixed;bottom: 0px; width: 100%;">
             <d3>@Copyright 2019 Vineet Chaudhary TTN</d3>
         </footer>
+
+    <div th:fragment="tasks" class="container-fluid bg-3 text-center">
+        <div class="row content">
+            <div class="col-sm-2"></div>
+            <table id="tasksTable" class="table col-sm-8 text-left">
+                <thead>
+                <tr>
+                    <th scope="col">Status</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Title</th>
+                    <th scope="col">Description</th>
+                    <th scope="col">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="task : ${tasks}" th:id="${task.id}">
+                    <td><input type="checkbox" th:value="${task.id}" th:checked="${task.status}" th:onclick="'updateTask(' + ${task.id} + ');'"></td>
+                    <td th:text="${task.date}"></td>
+                    <td th:text="${task.title}"></td>
+                    <td th:text="${task.description}"></td>
+                    <td><button class="btn btn-danger my-2 my-sm-0"
+                                th:onclick="'deleteTask('+${task.id}+');'" style="width:auto;">Delete
+                    </button></td>
+                </tr>
+                </tbody>
+            </table>
+            <div class="col-sm-2"></div>
+        </div>
     </div>
 </div>
+</body>
+</html>
