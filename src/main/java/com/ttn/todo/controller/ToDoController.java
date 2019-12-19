@@ -5,6 +5,8 @@ import com.ttn.todo.entity.User;
 import com.ttn.todo.service.RoleService;
 import com.ttn.todo.service.TaskService;
 import com.ttn.todo.service.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -29,6 +31,8 @@ public class ToDoController {
 
     @Autowired
     TaskService taskService;
+
+    Logger logger = LoggerFactory.getLogger(ToDoController.class);
 
 
     @RequestMapping("/")
@@ -83,7 +87,8 @@ public class ToDoController {
     @PreAuthorize("hasAuthority('ROLE_USER')")
     @RequestMapping("/deleteTask")
     void deleteTask(int taskId) {
+        logger.info("deleted");
         taskService.deleteTask(taskId);
     }
-    
+
 }
