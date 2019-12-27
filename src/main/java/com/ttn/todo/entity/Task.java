@@ -66,4 +66,16 @@ public class Task {
     public void setDate(Date date) {
         this.date = date;
     }
+
+    @Override
+    public String toString() {
+        return "Task{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", description='" + description + '\'' +
+                ", status=" + status +
+                ", user=" + user +
+                ", date=" + date +
+                '}';
+    }
 }

@@ -5,6 +5,7 @@ import com.ttn.todo.entity.User;
 import com.ttn.todo.repo.TaskRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 
 @Service
@@ -21,10 +22,10 @@ public class TaskService {
     }
 
     public Task findById(int taskId) {
-        return taskRepo.findById(taskId).orElse(new Task());
+        return taskRepo.findById(taskId).orElse(null);
     }
 
-    public void deleteTask(int taskId) {
-        taskRepo.delete(taskRepo.findById(taskId).orElse(new Task()));
+    public void deleteTask(Task task) {
+        taskRepo.delete(task);
     }
 }

@@ -2,6 +2,7 @@ package com.ttn.todo.controller;
 
 import com.ttn.todo.entity.Task;
 import com.ttn.todo.entity.User;
+import com.ttn.todo.exception.TaskNotFoundException;
 import com.ttn.todo.service.RoleService;
 import com.ttn.todo.service.TaskService;
 import com.ttn.todo.service.UserService;
@@ -18,7 +19,6 @@ import java.security.Principal;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
-import java.util.Map;
 
 @Controller
 public class ToDoController {
@@ -69,26 +69,35 @@ public class ToDoController {
         User user = userService.findByUsername(principal.getName());
         task.setUser(user);
         task = taskService.saveTask(task);
-        return task.getId() != 0 ? task: new Task();
+        return task;
     }
 
     @ResponseBody
     @PreAuthorize("hasAuthority('ROLE_USER')")
     @RequestMapping("/updateStatus")
-    Task updateStatus(int taskId, boolean status) {
+    Task updateStatus(int taskId, boolean status) throws TaskNotFoundException {
         Task task = taskService.findById(taskId);
-        task.setStatus(status);
-        task = taskService.saveTask(task);
-        return task.getId() != 0 ? task: new Task();
+        if (task == null){
+            throw new TaskNotFoundException("There is no task with id : "+taskId);
+        } else {
+            System.out.println(task.toString());
+            task.setStatus(status);
+            task = taskService.saveTask(task);
+        }
+        return task;
     }
 
 
     @ResponseBody
     @PreAuthorize("hasAuthority('ROLE_USER')")
     @RequestMapping("/deleteTask")
-    void deleteTask(int taskId) {
-        logger.info("deleted");
-        taskService.deleteTask(taskId);
+    void deleteTask(int taskId) throws TaskNotFoundException {
+        Task task = taskService.findById(taskId);
+        if (task == null){
+            throw new TaskNotFoundException("There is no task with id : "+taskId);
+        } else {
+            taskService.deleteTask(task);
+        }
     }
 
 }
